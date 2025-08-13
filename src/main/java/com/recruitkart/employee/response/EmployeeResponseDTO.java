@@ -15,6 +15,13 @@ public class EmployeeResponseDTO {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
+
+
+
+    public EmployeeResponseDTO(){
+
+    }
+
     public EmployeeResponseDTO(String employeeId, String employeeName, String employeeEmailId, String employeeMobileNo, LocalDate employeeDateOfBirth, String employeeRole, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.employeeId = employeeId;
         this.employeeName = employeeName;

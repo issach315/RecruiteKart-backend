@@ -34,11 +34,6 @@ public class Employee {
     private String employeeRole;
 
     @NotNull(message = "Password is required")
-    @Size(min = 8, max = 20, message = "Password must be between 8 and 20 characters")
-    @Pattern(
-            regexp = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,20}$",
-            message = "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character"
-    )
     private String password;
 
     @Column(updatable = false, columnDefinition = "DATETIME")
@@ -46,6 +41,7 @@ public class Employee {
 
     @Column(columnDefinition = "DATETIME")
     private LocalDateTime updatedAt;
+
 
     @PrePersist
     protected void onCreate() {
@@ -57,6 +53,9 @@ public class Employee {
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
+
+
+
 
     public Employee() {
     }
