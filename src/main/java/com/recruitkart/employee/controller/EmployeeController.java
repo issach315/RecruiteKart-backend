@@ -74,6 +74,13 @@ public class EmployeeController {
         );
     }
 
+    @GetMapping("getEmpById/{employeeId}")
+    public ResponseEntity<ApiResponse<EmployeeResponseDTO>> getEmpById(@PathVariable String employeeId,HttpServletRequest request){
+       EmployeeResponseDTO employee = employeeService.getEmployeeById(employeeId);
+       ApiResponse apiResponse = new ApiResponse(true,"Employee fetched successfully",employee,request.getRequestURI());
+       return new  ResponseEntity<>(apiResponse,HttpStatus.OK);
+    }
+
     // New paginated endpoint
     @GetMapping("/getAllEmployeesPaginated")
     public ResponseEntity<ApiResponse<PaginatedEmployeeResponseDTO>> getAllEmployeesPaginated(
@@ -131,4 +138,24 @@ public class EmployeeController {
                 )
         );
     }
+
+
+    @PutMapping("/updateEmpById/{employeeId}")
+    public ResponseEntity<ApiResponse<OnBoardEmployeeResponseDTO>> updateEmpById(@PathVariable String employeeId , @RequestBody Employee updateEmployee,HttpServletRequest request){
+
+        Employee updatedEmployee =  employeeService.updateEmpById(employeeId , updateEmployee);
+
+        OnBoardEmployeeResponseDTO updatedEmployedDto = new OnBoardEmployeeResponseDTO(updatedEmployee.getEmployeeId(),updatedEmployee.getEmployeeName());
+        ApiResponse apiResponse = new ApiResponse(true,"Employee updated successfully",updatedEmployedDto,request.getRequestURI());
+        return new ResponseEntity<>(apiResponse,HttpStatus.OK);
+    }
+
+
+    @DeleteMapping("/deleteEmpById/{employeeId}")
+    public ResponseEntity<String> deleteEmployeeById(@PathVariable String employeeId){
+       employeeService.deleteEmployeeById(employeeId);
+       return ResponseEntity.ok("Employee with ID "+employeeId+" delete successfully");
+
+    }
+
 }
