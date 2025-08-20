@@ -1,56 +1,37 @@
-package com.recruitkart.employee.model;
+package com.recruitkart.employee.DTO;
 
 import com.recruitkart.common.constants.EmployeeRole;
-import jakarta.persistence.*;
-
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "employees_table")
-public class Employee {
+public class EmployeeResponseDTO {
 
-    @Id
-    @Column(name = "emp_id")
     private String empId;
-
-    @Column(name = "emp_name")
     private String empName;
-
-    @Column(name = "emp_email_id")
     private String empEmailId;
-
-    @Column(name = "emp_mobile_no")
     private String empMobileNo;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "emp_role")
     private EmployeeRole empRole;
-
-    @Column(name = "account_password")
-    private String accountPassword;
-
-    @Column(name = "created_at" ,columnDefinition = "datetime")
     private LocalDateTime createdAt;
-
-    @Column(name = "updated_at",columnDefinition = "datetime")
     private LocalDateTime updatedAt;
-
-    @Column(name = "updated_by")
     private String updatedBy;
 
+    // Note: accountPassword is excluded for security reasons
+
     // No-args constructor
-    public Employee() {
+    public EmployeeResponseDTO() {
     }
 
-    // All-args constructor
-    public Employee(String empId, String empName, String empEmailId, String empMobileNo,
-                    EmployeeRole empRole, String accountPassword, String updatedBy) {
+    // All-args constructor (without password)
+    public EmployeeResponseDTO(String empId, String empName, String empEmailId,
+                               String empMobileNo, EmployeeRole empRole,
+                               LocalDateTime createdAt, LocalDateTime updatedAt,
+                               String updatedBy) {
         this.empId = empId;
         this.empName = empName;
         this.empEmailId = empEmailId;
         this.empMobileNo = empMobileNo;
         this.empRole = empRole;
-        this.accountPassword = accountPassword;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
         this.updatedBy = updatedBy;
     }
 
@@ -95,20 +76,20 @@ public class Employee {
         this.empRole = empRole;
     }
 
-    public String getAccountPassword() {
-        return accountPassword;
-    }
-
-    public void setAccountPassword(String accountPassword) {
-        this.accountPassword = accountPassword;
-    }
-
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
     public String getUpdatedBy() {
@@ -117,18 +98,5 @@ public class Employee {
 
     public void setUpdatedBy(String updatedBy) {
         this.updatedBy = updatedBy;
-    }
-
-    // Automatically set createdAt before persisting
-    @PrePersist
-    protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
-    }
-
-    // Automatically update updatedAt before updating
-    @PreUpdate
-    protected void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
     }
 }

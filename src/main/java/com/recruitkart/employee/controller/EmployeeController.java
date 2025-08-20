@@ -1,161 +1,61 @@
 package com.recruitkart.employee.controller;
 
-import com.recruitkart.employee.response.EmployeeResponseDTO;
-import com.recruitkart.employee.response.OnBoardEmployeeResponseDTO;
-import com.recruitkart.employee.response.PaginatedEmployeeResponseDTO;
+import com.recruitkart.common.response.ApiResponse;
+import com.recruitkart.common.response.PagedResponse;
+import com.recruitkart.employee.DTO.EmployeeRequestDTO;
+import com.recruitkart.employee.DTO.EmployeeResponseDTO;
 import com.recruitkart.employee.model.Employee;
-import com.recruitkart.employee.response.ApiResponse;
 import com.recruitkart.employee.service.EmployeeService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import javax.swing.text.html.Option;
+import java.util.Optional;
 
 @RestController
 public class EmployeeController {
 
+
     @Autowired
     private EmployeeService employeeService;
 
-    @PostMapping("/onBoardNewEmployee")
-    public ResponseEntity<ApiResponse<OnBoardEmployeeResponseDTO>> onBoardNewEmployee(
-            @RequestBody Employee employee, HttpServletRequest request) {
 
-        Employee savedEmployee = employeeService.onBoardNewEmployee(employee);
+    @PostMapping("/registerEmployee")
+    public ResponseEntity<ApiResponse<EmployeeResponseDTO>> registerEmployee(@RequestBody @Valid EmployeeRequestDTO employeeRequestDto, HttpServletRequest request) {
 
-        OnBoardEmployeeResponseDTO responseDTO = new OnBoardEmployeeResponseDTO(
-                savedEmployee.getEmployeeId(),
-                savedEmployee.getEmployeeName()
-        );
+        EmployeeResponseDTO responseDto = employeeService.registerEmployee(employeeRequestDto);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(
-                new ApiResponse<>(
-                        true,
-                        "Employee created successfully",
-                        responseDTO,
-                        request.getRequestURI()
-                )
-        );
+        ApiResponse<EmployeeResponseDTO> response =
+                ApiResponse.success(responseDto, "Employee registered successfully", request.getRequestURI());
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    // Original method - kept for backward compatibility
-    @GetMapping("/getAllEmployees")
-    public ResponseEntity<ApiResponse<List<EmployeeResponseDTO>>> getAllEmployees(HttpServletRequest request) {
+    @GetMapping("/findAllEmployees")
+    public ResponseEntity<PagedResponse<EmployeeResponseDTO>> getAllEmployees(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
 
-        List<EmployeeResponseDTO> employees = employeeService.getAllEmployees()
-                .stream()
-                .map(e -> new EmployeeResponseDTO(
-                        e.getEmployeeId(),
-                        e.getEmployeeName(),
-                        e.getEmployeeEmailId(),
-                        e.getEmployeeMobileNo(),
-                        e.getEmployeeDateOfBirth(),
-                        e.getEmployeeRole(),
-                        e.getCreatedAt(),
-                        e.getUpdatedAt()
-                ))
-                .collect(Collectors.toList());
-
-        return ResponseEntity.ok(
-                new ApiResponse<>(
-                        true,
-                        "Employees fetched successfully",
-                        employees,
-                        request.getRequestURI()
-                )
-        );
+        return ResponseEntity.ok(employeeService.findAllEmployees(page, size));
     }
 
-    @GetMapping("getEmpById/{employeeId}")
-    public ResponseEntity<ApiResponse<EmployeeResponseDTO>> getEmpById(@PathVariable String employeeId,HttpServletRequest request){
-       EmployeeResponseDTO employee = employeeService.getEmployeeById(employeeId);
-       ApiResponse apiResponse = new ApiResponse(true,"Employee fetched successfully",employee,request.getRequestURI());
-       return new  ResponseEntity<>(apiResponse,HttpStatus.OK);
-    }
-
-    // New paginated endpoint
-    @GetMapping("/getAllEmployeesPaginated")
-    public ResponseEntity<ApiResponse<PaginatedEmployeeResponseDTO>> getAllEmployeesPaginated(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "employeeId") String sortBy,
-            @RequestParam(defaultValue = "asc") String sortDirection,
+    @GetMapping("/findByEmpId/{empId}")
+    public ResponseEntity<ApiResponse<EmployeeResponseDTO>> getEmployeeById(
+            @PathVariable String empId,
             HttpServletRequest request) {
 
-        // Create sort object
-        Sort sort = sortDirection.equalsIgnoreCase("desc")
-                ? Sort.by(sortBy).descending()
-                : Sort.by(sortBy).ascending();
+        EmployeeResponseDTO employeeDto = employeeService.findEmployeeById(empId);
 
-        // Create pageable object
-        Pageable pageable = PageRequest.of(page, size, sort);
-
-        // Get paginated data from service
-        Page<Employee> employeePage = employeeService.getAllEmployeesPaginated(pageable);
-
-        // Convert to DTOs
-        List<EmployeeResponseDTO> employeeDTOs = employeePage.getContent()
-                .stream()
-                .map(e -> new EmployeeResponseDTO(
-                        e.getEmployeeId(),
-                        e.getEmployeeName(),
-                        e.getEmployeeEmailId(),
-                        e.getEmployeeMobileNo(),
-                        e.getEmployeeDateOfBirth(),
-                        e.getEmployeeRole(),
-                        e.getCreatedAt(),
-                        e.getUpdatedAt()
-                ))
-                .collect(Collectors.toList());
-
-        // Create paginated response DTO
-        PaginatedEmployeeResponseDTO paginatedResponse = new PaginatedEmployeeResponseDTO(
-                employeeDTOs,
-                employeePage.getNumber(),
-                employeePage.getSize(),
-                employeePage.getTotalElements(),
-                employeePage.getTotalPages(),
-                employeePage.isFirst(),
-                employeePage.isLast(),
-                employeePage.hasNext(),
-                employeePage.hasPrevious()
+        ApiResponse<EmployeeResponseDTO> response = ApiResponse.success(
+                employeeDto,
+                "Employee fetched successfully",
+                request.getRequestURI()
         );
-
-        return ResponseEntity.ok(
-                new ApiResponse<>(
-                        true,
-                        "Employees fetched successfully with pagination",
-                        paginatedResponse,
-                        request.getRequestURI()
-                )
-        );
+        return ResponseEntity.ok(response);
     }
 
 
-    @PutMapping("/updateEmpById/{employeeId}")
-    public ResponseEntity<ApiResponse<OnBoardEmployeeResponseDTO>> updateEmpById(@PathVariable String employeeId , @RequestBody Employee updateEmployee,HttpServletRequest request){
-
-        Employee updatedEmployee =  employeeService.updateEmpById(employeeId , updateEmployee);
-
-        OnBoardEmployeeResponseDTO updatedEmployedDto = new OnBoardEmployeeResponseDTO(updatedEmployee.getEmployeeId(),updatedEmployee.getEmployeeName());
-        ApiResponse apiResponse = new ApiResponse(true,"Employee updated successfully",updatedEmployedDto,request.getRequestURI());
-        return new ResponseEntity<>(apiResponse,HttpStatus.OK);
-    }
-
-
-    @DeleteMapping("/deleteEmpById/{employeeId}")
-    public ResponseEntity<String> deleteEmployeeById(@PathVariable String employeeId){
-       employeeService.deleteEmployeeById(employeeId);
-       return ResponseEntity.ok("Employee with ID "+employeeId+" delete successfully");
-
-    }
 
 }

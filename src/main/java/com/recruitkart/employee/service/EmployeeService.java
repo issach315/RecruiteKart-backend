@@ -1,23 +1,20 @@
 package com.recruitkart.employee.service;
 
-import com.recruitkart.employee.model.Employee;
-import com.recruitkart.employee.response.EmployeeResponseDTO;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 
+import com.recruitkart.common.response.PagedResponse;
+import com.recruitkart.employee.DTO.EmployeeRequestDTO;
+import com.recruitkart.employee.DTO.EmployeeResponseDTO;
+import com.recruitkart.employee.model.Employee;
+
+import javax.swing.text.html.Option;
 import java.util.List;
+import java.util.Optional;
 
 public interface EmployeeService {
 
-    Employee onBoardNewEmployee(Employee employee);
+   EmployeeResponseDTO registerEmployee(EmployeeRequestDTO requestDto);
 
-    List<Employee> getAllEmployees();
+   PagedResponse<EmployeeResponseDTO> findAllEmployees(int page , int size);
 
-    Page<Employee> getAllEmployeesPaginated(Pageable pageable);
-
-   void  deleteEmployeeById(String employeeId);
-
-   Employee updateEmpById(String employeeId , Employee employee);
-
-   EmployeeResponseDTO getEmployeeById(String employeeId);
+   EmployeeResponseDTO findEmployeeById(String empId);
 }
