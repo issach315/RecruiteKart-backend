@@ -57,5 +57,25 @@ public class EmployeeController {
     }
 
 
+    @PutMapping("/updateEmployee/{empId}")
+    public ResponseEntity<ApiResponse<EmployeeResponseDTO>> updateEmployee(
+            @PathVariable String empId,
+            @RequestBody EmployeeRequestDTO employeeRequestDTO,
+            HttpServletRequest request) {
+
+        // Call service
+        EmployeeResponseDTO employeeResponseDTO = employeeService.updateEmployee(empId, employeeRequestDTO);
+
+        // Wrap in ApiResponse
+        ApiResponse<EmployeeResponseDTO> response = ApiResponse.success(
+                employeeResponseDTO,
+                "Employee updated successfully",
+                request.getRequestURI()
+        );
+
+        // Return response
+        return ResponseEntity.ok(response);
+    }
+
 
 }

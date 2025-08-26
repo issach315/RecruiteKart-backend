@@ -17,4 +17,6 @@ public interface EmployeeService {
    PagedResponse<EmployeeResponseDTO> findAllEmployees(int page , int size);
 
    EmployeeResponseDTO findEmployeeById(String empId);
+
+   EmployeeResponseDTO updateEmployee(String empId,EmployeeRequestDTO employeeRequestDTO);
 }

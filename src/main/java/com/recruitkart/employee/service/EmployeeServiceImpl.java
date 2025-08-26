@@ -84,10 +84,32 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public EmployeeResponseDTO findEmployeeById(String empId) {
-       return employeeRepo.findById(empId)
-               .map(employee -> modelMapper.map(employee,EmployeeResponseDTO.class))
-               .orElseThrow(()-> new EmployeeNotFoundException("Employee with ID '" + empId + "' not found"));
+        return employeeRepo.findById(empId)
+                .map(employee -> modelMapper.map(employee, EmployeeResponseDTO.class))
+                .orElseThrow(() -> new EmployeeNotFoundException("Employee with ID '" + empId + "' not found"));
 
+    }
+
+    @Override
+    public EmployeeResponseDTO updateEmployee(String empId, EmployeeRequestDTO employeeRequestDTO) {
+
+        Employee existEmp = employeeRepo.findById(empId)
+                .orElseThrow(() -> new EmployeeNotFoundException("Employee with ID '" + empId + "' not found"));
+
+        employeeRepo.findByEmpEmailId(employeeRequestDTO.getEmpEmailId())
+                .filter((emp) -> emp.getEmpId().equals(empId))
+                .ifPresent(emp ->
+                {
+                    throw new DuplicateResourceException("Employee with email ID " + employeeRequestDTO.getEmpEmailId() + " alredy exist");
+                });
+        existEmp.setEmpName(employeeRequestDTO.getEmpName());
+        existEmp.setEmpMobileNo(employeeRequestDTO.getEmpMobileNo());
+        existEmp.setAccountPassword(employeeRequestDTO.getAccountPassword());
+        existEmp.setUpdatedBy(employeeRequestDTO.getUpdatedBy());
+
+        Employee updatedEmployee = employeeRepo.save(existEmp);
+
+        return modelMapper.map(updatedEmployee,EmployeeResponseDTO.class);
     }
 
 
